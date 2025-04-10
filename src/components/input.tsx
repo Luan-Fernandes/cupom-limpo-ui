@@ -1,20 +1,27 @@
 "use client";
 
 import { TextField } from "@mui/material";
-import { ReactNode } from "react";
+import { ChangeEvent, HTMLInputTypeAttribute, ReactNode } from "react";
 
 interface InputProps {
   label: string;
+  type: HTMLInputTypeAttribute;
+  onValueChange?: (
+    formattedValue: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  value?: string;
 }
-export function Input({ label }: InputProps) {
+export function Input({ value, onValueChange, type, label }: InputProps) {
   return (
-    <div>
-      <TextField
-        id="outlined-basic"
-        label={label}
-        variant="outlined"
-        className="relative w-[400px] "
-      />
-    </div>
+    <TextField
+      value={value}
+      onChange={onValueChange}
+      id="outlined-basic"
+      label={label}
+      type={type}
+      variant="outlined"
+      className="relative"
+      fullWidth
+    />
   );
 }
