@@ -1,12 +1,22 @@
 "use client";
-
+import { z } from "zod";
 import { Input } from "@/components/input";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import React, { ReactHTMLElement, useState } from "react";
 
+const emailSchema = z.string().email();
+const nomeSchema = z
+  .string()
+  .min(2, "O nome deve ter pelo menos 2 letras")
+  .regex(/^[a-zA-Z]$/, "O nome deve conter apenas letras")
+  .transform((val) => val.trim());
 export default function LoginPage() {
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [cpf, setCpf] = useState("");
+
   const handleChangeCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCPF(e.target.value);
     setCpf(formatted);
@@ -19,10 +29,46 @@ export default function LoginPage() {
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      emailSchema.parse(email);
+      setError("");
+      alert("E-mail válido");
+    } catch (e) {
+      setError("Email invalido");
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setEmail(e.target.value);
+  };
+
+  const handleNomeChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const valor = e.target.value;
+    setNome(valor); // sempre atualiza o valor digitado
+
+    try {
+      nomeSchema.parse(valor);
+      setError("");
+      console.log(nome);
+    } catch (err: any) {
+      setError(err.errors[0].message);
+    }
+  };
   return (
     <div className="bg-gradient-to-r from-green-400 to-teal-500 min-h-screen flex items-center justify-center">
       <div className="bg-gradient-to-b from-white to-zinc-200 lg:w-[500px] w-[370px] lg:h-[700px] h-[635px] rounded-3xl shadow-xl p-10 flex justify-center items-center">
-        <div className="flex flex-col gap-1 items-center justify-center">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-1 items-center justify-center"
+        >
           <div className="flex items-center gap-2">
             <ArrowLeft />
             <div className="text-4xl font-bold text-center text-gray-800 mb-6 pt-2">
@@ -35,8 +81,18 @@ export default function LoginPage() {
           </div>
 
           <div className="w-full flex flex-col gap-2 mb-6">
-            <Input label="Email" type="email" />
-            <Input label="Nome" type="text" />
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onValueChange={handleChange}
+            />
+            <Input
+              label="Nome"
+              type="text"
+              value={nome}
+              onValueChange={handleNomeChange}
+            />
             <Input
               label="CPF"
               type="text"
@@ -50,7 +106,7 @@ export default function LoginPage() {
           <button className="w-[300px] py-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-lg rounded-2xl shadow-2xl hover:from-green-500 hover:to-green-700 transition duration-300 transform hover:scale-105">
             Cadastrar
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );
