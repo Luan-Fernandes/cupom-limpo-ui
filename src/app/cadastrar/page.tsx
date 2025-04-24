@@ -52,7 +52,7 @@ export default function LoginPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const valor = e.target.value;
-    setNome(valor); // sempre atualiza o valor digitado
+    setNome(valor);
 
     try {
       nomeSchema.parse(valor);
