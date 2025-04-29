@@ -1,17 +1,46 @@
-"use client";
+'use client';
 
 import { Input } from "@/components/input";
+import { useRouter } from "next/navigation"; // Importação correta para cliente
 import Link from "next/link";
-
-import { useState } from "react";
+import { useState } from "react"
+import { CheckCpfResponseType } from "@/Context/TypesResponse";
+import { useAuth } from "@/Context/AuthContext";
 
 export default function LoginPage() {
   const [cpf, setCpf] = useState("");
+  const router = useRouter();
+  const {checkCpf} = useAuth();
+  const [error, setError] = useState("");
+
+  const handleClick = async(e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!cpf) {
+      alert("CPF obrigatório");
+      return;
+    }
+    localStorage.setItem("cpf", cpf);
+    const cpfNormalizado = cpf.replace(/\D/g, '');
+
+    try {
+      const data : CheckCpfResponseType = await checkCpf(cpfNormalizado);
+      const isVerufied = data.success;
+    
+      if(!isVerufied) {
+        router.push("/loginpass");
+      }
+      else { 
+        router.push("/completecad");
+      }
+    } catch (err) {
+      setError('Erro ao verificar CPF');
+    }
+  };
 
   const handleChangeCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCPF(e.target.value);
     setCpf(formatted);
   };
+
   function formatCPF(value: string) {
     return value
       .replace(/\D/g, "")
@@ -20,9 +49,10 @@ export default function LoginPage() {
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   }
+
   return (
     <div className="bg-gradient-to-r from-green-400 to-teal-500 min-h-screen flex items-center justify-center">
-      <div className="bg-gradient-to-b from-white to-zinc-200  lg:w-[500px] w-[370px] h-[500px] rounded-3xl shadow-xl p-10 flex justify-center items-center">
+      <div className="bg-gradient-to-b from-white to-zinc-200 lg:w-[500px] w-[370px] h-[500px] rounded-3xl shadow-xl p-10 flex justify-center items-center">
         <div className="flex flex-col gap-1 items-center justify-center">
           <div className="text-4xl font-bold text-center text-gray-800 mb-6">
             Bem-vindo!
@@ -40,8 +70,10 @@ export default function LoginPage() {
               onValueChange={(e: any) => handleChangeCpf(e)}
             />
           </div>
-
-          <button className="w-[300px]  py-3 bg-gradient-to-r from-green-400 to-green-600  text-white text-lg rounded-2xl shadow-md hover:bg-green-600 transition duration-300 transform hover:scale-105">
+          <button
+            onClick={handleClick}
+            className="w-[300px] py-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-lg rounded-2xl shadow-md hover:bg-green-600 transition duration-300 transform hover:scale-105"
+          >
             Entrar
           </button>
 
