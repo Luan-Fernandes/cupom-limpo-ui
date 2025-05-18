@@ -2,10 +2,10 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-import * as AuthService from '@/services/authService';
-import { AuthContext } from './useAuth';
 import { User } from '@/types/user';
+import { AuthContext } from './useAuth';
+import * as AuthService from '@/services/authService';
+import Cookies from 'js-cookie';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -14,10 +14,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
+    const cookieToken = Cookies.get('authToken');
     const storedUser = localStorage.getItem('user');
 
-    if (storedToken) setToken(storedToken);
+    if (cookieToken) setToken(cookieToken);
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
@@ -30,30 +30,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('authToken', token);
-    } else {
-      localStorage.removeItem('authToken');
-    }
-
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
     } else {
       localStorage.removeItem('user');
     }
-  }, [token, user]);
+  }, [user]);
 
   const login = async (cpf: string, password: string) => {
     const res: any = await AuthService.login(cpf, password);
     setToken(res.token);
     setUser(res.user);
+    console.log(token,user);
     return res;
+    
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.clear();
+    AuthService.logout(); // remove cookie e user
     router.push('/login');
   };
 

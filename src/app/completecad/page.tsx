@@ -4,15 +4,13 @@ import { Input } from "@/components/input";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React, { ReactHTMLElement, useState } from "react";
-import { useAuth } from "@/Context/AuthContext";
-import { CompleteLoginRequestType } from "@/Context/TypeRequest";
+import { CompleteLoginRequestType } from "@/types/TypeRequest";
+import FlashMessage from "@/components/flashMessage";
+import LoadingSpinner from "@/components/loading";
+import { useRouter } from "next/navigation";
+import { Rotas } from "@/types/TypesResponse";
+import { useAuth } from "@/Context/useAuth";
 
-const emailSchema = z.string().email();
-const nomeSchema = z
-  .string()
-  .min(2, "O nome deve ter pelo menos 2 letras")
-  .regex(/^[a-zA-Z]$/, "O nome deve conter apenas letras")
-  .transform((val) => val.trim());
 export default function LoginPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -20,24 +18,50 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const cpf = localStorage.getItem("cpf") as string;
-  console.log(cpf);
   const { completeRegister } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const emailSchema = z.string().email();
+  const nomeSchema = z
+    .string()
+    .min(2, "O nome deve ter pelo menos 2 letras")
+    .regex(/^[a-zA-Z]$/, "O nome deve conter apenas letras")
+    .transform((val) => val.trim());
 
-  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
 
-      const data : CompleteLoginRequestType = {
-        cpf: cpf,
-        username: nome,
-        email: email,
-        password: password,
-      }
-      try {
-
-     const res = await completeRegister(data);
-     console.log(res);
+    if (password.length < 8 || confirmPassword.length < 8) {
+      setError("A senha deve ter pelo menos 8 caracteres");
+      setLoading(false);
+      return;
+    }
+    if (!emailSchema.safeParse(email).success) {
+      console.log(emailSchema.safeParse(email));
+      setLoading(false);
+      return;
+    }
+    if (!nome.length || nome.length < 4) {
+      setError("Nome inválido");
+      setLoading(false);
+      return;
+    }
+    const normalizarCpf = cpf.replace(/\D/g, "");
+    const data: CompleteLoginRequestType = {
+      cpf: normalizarCpf,
+      username: nome,
+      email: email,
+      password: password,
+    };
+    try {
+      await completeRegister(data);
+      router.push(Rotas.cadcompleto);
     } catch (e) {
-      setError("Email invalido");
+      console.error("Erro durante o registro:", e);
+      setError("Ocorreu um erro ao completar o registro.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,14 +86,22 @@ export default function LoginPage() {
   const handleNomeChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-   setNome(e.target.value);
+    setNome(e.target.value);
   };
   return (
     <div className="bg-gradient-to-r from-green-400 to-teal-500 min-h-screen flex items-center justify-center">
-      <div className="bg-gradient-to-b from-white to-zinc-200 lg:w-[500px] w-[370px] lg:h-[700px] h-[635px] rounded-3xl shadow-xl p-10 flex justify-center items-center relative">
-        <Link href={"/login"}>
-          <ArrowLeft className="cursor-pointer absolute w-10 h-10 top-4 left-4 z-50 p-2 text-2xl text-gray-900 hover:text-black" />
-        </Link>
+      {loading && <LoadingSpinner />}
+      <FlashMessage
+        message={error}
+        open={!!error}
+        onClose={() => setError("")}
+      />
+      <div className="bg-gradient-to-b  flex flex-col gap-10 from-white to-zinc-200 lg:w-[500px] w-[370px] lg:h-[700px] h-[635px] rounded-3xl shadow-xl p-10 flex justify-center items-center relative">
+        <div className="w-full flex justify-start">
+          <Link href={Rotas.login}>
+            <ArrowLeft className="cursor-pointer top-4 w-10 h-10 left-4 z-50 p-2 text-2xl text-gray-900 hover:text-black" />
+          </Link>
+        </div>
         <form
           onSubmit={handleSubmit}
           className="flex flex-col gap-1 items-center justify-center"
@@ -85,14 +117,10 @@ export default function LoginPage() {
           </div>
 
           <div className="w-full flex flex-col gap-2 mb-6">
-          <Input
-              label="CPF"
-              type="text"
-              value={cpf}
-            />
+            <Input label="CPF" type="text" value={cpf} />
             <Input
               label="Email"
-              type="email"
+              type="text"
               value={email}
               onValueChange={handleChangeEmail}
             />
@@ -102,8 +130,16 @@ export default function LoginPage() {
               value={nome}
               onValueChange={handleNomeChange}
             />
-            <Input label="Senha" type="password" onValueChange={handleChangePassword} />
-            <Input label="Confime sua senha" type="password" onValueChange={handleChangeConfirmPassword} />
+            <Input
+              label="Senha"
+              type="password"
+              onValueChange={handleChangePassword}
+            />
+            <Input
+              label="Confime sua senha"
+              type="password"
+              onValueChange={handleChangeConfirmPassword}
+            />
           </div>
 
           <button className="w-[300px] py-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-lg rounded-2xl shadow-2xl hover:from-green-500 hover:to-green-700 transition duration-300 transform hover:scale-105">
