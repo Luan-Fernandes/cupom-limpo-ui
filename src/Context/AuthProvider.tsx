@@ -2,31 +2,45 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { User } from '@/types/user';
 import { AuthContext } from './useAuth';
 import * as AuthService from '@/services/authService';
 import Cookies from 'js-cookie';
+import { userDate } from '@/types/dataUser';
+import { jwtDecode } from 'jwt-decode';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<userDate | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const cookieToken = Cookies.get('authToken');
-    const storedUser = localStorage.getItem('user');
+    const loadAuthData = async () => {
+      const cookieToken = Cookies.get('authToken');
+      const storedUser = localStorage.getItem('user');
 
-    if (cookieToken) setToken(cookieToken);
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (err) {
-        console.error('Erro ao parsear user:', err);
+      if (cookieToken) {
+        setToken(cookieToken);
+        try {
+          const decodedUser = jwtDecode<userDate>(cookieToken);
+          setUser(decodedUser);
+        } catch (error) {
+          console.error('Erro ao decodificar token do cookie:', error);
+          Cookies.remove('authToken');
+        }
+      } else if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (err) {
+          console.error('Erro ao parsear user do localStorage:', err);
+          localStorage.removeItem('user');
+        }
       }
-    }
 
-    setLoading(false);
+      setLoading(false);
+    };
+
+    loadAuthData();
   }, []);
 
   useEffect(() => {
@@ -38,19 +52,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   const login = async (cpf: string, password: string) => {
-    const res: any = await AuthService.login(cpf, password);
-    setToken(res.token);
-    setUser(res.user);
-    console.log(token,user);
-    return res;
-    
+    setLoading(true);
+    try {
+      const res: any = await AuthService.login(cpf, password);
+      setToken(res.token);
+      Cookies.set('authToken', res.token, { expires: 7 });
+      setUser(res.user);
+      console.log(token, user);
+      return res;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
+    setLoading(true);
     setUser(null);
     setToken(null);
-    AuthService.logout(); // remove cookie e user
+    localStorage.clear();
+    Cookies.remove('authToken');
+    AuthService.logout();
     router.push('/login');
+    setLoading(false);
   };
 
   return (

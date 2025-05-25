@@ -3,46 +3,51 @@
 import { Input } from "@/components/input";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react"
+import { use, useState } from "react"
 import { CheckCpfResponseType, Rotas } from "@/types/TypesResponse";
 import FlashMessage from "@/components/flashMessage";
 import LoadingSpinner from "@/components/loading";
 import { useAuth } from "@/Context/useAuth";
-
+import Cookies from 'js-cookie';
 
 export default function LoginPage() {
   const [cpf, setCpf] = useState("");
   const router = useRouter();
-  const {checkCpf} = useAuth();
+  const {checkCpf, loading} = useAuth();
   const [error, setError] = useState("");
   
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [loadingPage, setLoadingPage] = useState<boolean>(false); 
 
+
+  
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setLoading(true);
-  
+    setLoadingPage(true);
+
     if (!cpf?.trim()) {
       setError("Por favor, insira um CPF.");
-      setLoading(false); 
+      setLoadingPage(false);
       return;
     }
-  
+
     const cpfNormalizado = cpf.replace(/\D/g, '');
     localStorage.setItem("cpf", cpf);
-  
+
     try {
       const { completeCadastro } = await checkCpf(cpfNormalizado);
-      const nextRoute = completeCadastro ? Rotas.cadastrar : Rotas.loginPass;
+      Cookies.set('justRegistered', 'true', {
+        path: '/',
+        sameSite: 'lax',
+        expires: 1/24
+      });
+
+      const nextRoute = completeCadastro ? Rotas.completecad : Rotas.loginPass;
       router.push(nextRoute);
     } catch (error) {
       console.error("Erro ao verificar CPF:", error);
       setError("CPF inválido ou não encontrado.");
-    } finally {
-      setLoading(false);
     }
   };
-  
 
   const handleChangeCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCPF(e.target.value);
@@ -60,7 +65,7 @@ export default function LoginPage() {
 
   return (
     <div className="bg-gradient-to-r from-green-400 to-teal-500 min-h-screen flex items-center justify-center">
-      {loading && <LoadingSpinner/>}
+      { loadingPage || loading && <LoadingSpinner/>}
       <div className="bg-gradient-to-b from-white to-zinc-200 lg:w-[500px] w-[370px] h-[500px] rounded-3xl shadow-xl p-10 flex justify-center items-center">
         <div className="flex flex-col gap-1 items-center justify-center">
           <div className="text-4xl font-bold text-center text-gray-800 mb-6">
@@ -86,7 +91,6 @@ export default function LoginPage() {
           >
             Entrar
           </button>
-
           <div className="text-center mt-6">
             <span className="text-sm text-gray-700">
               Não possui conta?

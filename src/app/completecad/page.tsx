@@ -10,6 +10,7 @@ import LoadingSpinner from "@/components/loading";
 import { useRouter } from "next/navigation";
 import { Rotas } from "@/types/TypesResponse";
 import { useAuth } from "@/Context/useAuth";
+import Cookies from 'js-cookie';
 
 export default function LoginPage() {
   const [nome, setNome] = useState("");
@@ -18,8 +19,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const cpf = localStorage.getItem("cpf") as string;
-  const { completeRegister } = useAuth();
-  const [loading, setLoading] = useState<boolean>(false);
+  const { completeRegister, loading } = useAuth();
+  const [loadingPage, setLoadingPage] = useState<boolean>(false);
   const router = useRouter();
   const emailSchema = z.string().email();
   const nomeSchema = z
@@ -30,21 +31,21 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingPage(true);
 
     if (password.length < 8 || confirmPassword.length < 8) {
       setError("A senha deve ter pelo menos 8 caracteres");
-      setLoading(false);
+      setLoadingPage(false);
       return;
     }
     if (!emailSchema.safeParse(email).success) {
       console.log(emailSchema.safeParse(email));
-      setLoading(false);
+      setLoadingPage(false);
       return;
     }
     if (!nome.length || nome.length < 4) {
       setError("Nome inválido");
-      setLoading(false);
+      setLoadingPage(false);
       return;
     }
     const normalizarCpf = cpf.replace(/\D/g, "");
@@ -56,12 +57,14 @@ export default function LoginPage() {
     };
     try {
       await completeRegister(data);
+      Cookies.set('justRegistered', 'true', {
+        path: '/',
+        sameSite: 'lax',
+        expires: 1/24
+      });
       router.push(Rotas.cadcompleto);
-    } catch (e) {
-      console.error("Erro durante o registro:", e);
-      setError("Ocorreu um erro ao completar o registro.");
-    } finally {
-      setLoading(false);
+    } catch (e: any) {
+      setError(e.response.data.message);
     }
   };
 
@@ -89,8 +92,8 @@ export default function LoginPage() {
     setNome(e.target.value);
   };
   return (
-    <div className="bg-gradient-to-r from-green-400 to-teal-500 min-h-screen flex items-center justify-center">
-      {loading && <LoadingSpinner />}
+    <div className="bg-gradient-to-r from-green-400 to-teal-500 dark:bg-gradient-to-r from-green-400 to-teal-500 min-h-screen min-h-screen flex items-center justify-center">
+      {loadingPage || loading && <LoadingSpinner />}
       <FlashMessage
         message={error}
         open={!!error}
@@ -108,7 +111,7 @@ export default function LoginPage() {
         >
           <div className="flex items-center gap-2">
             <div className="text-4xl font-bold text-center text-gray-800 mb-6 pt-2">
-              Bem vindo!
+              Cadastro
             </div>
           </div>
 

@@ -1,17 +1,17 @@
-import { CompleteLoginRequestType } from '@/types/TypeRequest';
+import { CadastroRequestType, CompleteLoginRequestType } from '@/types/TypeRequest';
 import { AuthResponseType, CheckCpfResponseType } from '@/types/TypesResponse';
-import { User } from '@/types/user';
+import { userDate } from '@/types/dataUser';
 import { createContext, useContext } from 'react';
 
 interface AuthContextType {
-  user: User | null;
+  user: userDate | null;
   token: string | null;
   loading: boolean;
   login: (cpf: string, password: string) => Promise<AuthResponseType>;
   logout: () => void;
   checkCpf: (cpf: string) => Promise<CheckCpfResponseType>;
   completeRegister: (data: CompleteLoginRequestType) => Promise<AuthResponseType>;
-  register: (data: any) => Promise<any>;
+  register: (data: CadastroRequestType) => Promise<any>;
   resendVerification: (email: string) => Promise<any>;
   verifyEmail: (token: string) => Promise<any>;
   forgotPassword: (email: string) => Promise<any>;

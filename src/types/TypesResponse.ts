@@ -10,7 +10,9 @@ export interface AuthResponseType {
 }
 export enum Rotas {
   loginPass = "/loginpass",
-  cadastrar = "/completecad",
+  completecad = "/completecad",
   login = "/login",
-  cadcompleto = "/cadcompleto"
+  cadcompleto = "/cadcompleto",
+  home = "/",
+  cadastrar = "/cadastrar"
 }

@@ -8,7 +8,6 @@ import { Rotas } from "@/types/TypesResponse";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -17,27 +16,24 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const { token, user } = useAuth();
-
+  const [loadingPage, setLoadingPage] = useState<boolean>(false);
+  const { user,token, loading } = useAuth();
   const handleSubmit = async(e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingPage(true);
     const cpfNormalizado = cpf.replace(/\D/g, "");
     try {
       const data = await login(cpfNormalizado, senha);
-      console.log(token, user);
-    } catch (error) {
-      setError("CPF inválido ou não encontrado.");
-    } finally {
-      setLoading(false);
+      router.push(Rotas.home);
+    } catch (e:any) {
+      setError("Email ou senha inválidos");
     }
   }
 
   return (
     <div className="bg-gradient-to-r border from-green-400 to-teal-500 min-h-screen flex items-center justify-center">
        <FlashMessage message={error} open={!!error} onClose={() => setError('')} />
-       {loading && <LoadingSpinner/>}
+       {loadingPage || loading && <LoadingSpinner/>}
       <div className="bg-gradient-to-b flex flex-col gap-10 from-white to-zinc-200  lg:w-[500px] w-[370px] h-[500px] rounded-3xl shadow-xl p-10 flex justify-center items-center">
         <Link className="w-full flex justify-start" href={Rotas.login}>
           <ArrowLeft className="cursor-pointer text-2xl text-gray-900 hover:text-black" />
@@ -51,7 +47,7 @@ export default function LoginPage() {
             <Input label="CPF" type="text" value={cpf} />
             <Input
               label="Senha"
-              type="text"
+              type="password"
               value={senha}
               onValueChange={(e) => setSenha(e.target.value)}
             />

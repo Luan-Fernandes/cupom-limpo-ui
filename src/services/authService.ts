@@ -1,12 +1,11 @@
 import Cookies from 'js-cookie';
 import { AuthResponseType, CheckCpfResponseType } from '@/types/TypesResponse';
 import api from './api';
-import { CompleteLoginRequestType } from '@/types/TypeRequest';
+import { CadastroRequestType, CompleteLoginRequestType } from '@/types/TypeRequest';
 
 export const login = async (cpf: string, password: string): Promise<AuthResponseType> => {
   const res = await api.post('/auth/login', { cpf, password });
 
-  // Salva o token no cookie por 7 dias
   Cookies.set('authToken', res.data.token, { expires: 7, path: '/' });
 
   return res.data;
@@ -22,7 +21,7 @@ export const completeRegister = async (data: CompleteLoginRequestType): Promise<
   return res.data;
 };
 
-export const register = async (data: any) => {
+export const register = async (data: CadastroRequestType) => {
   const res = await api.post('/user/register', data);
   return res.data;
 };
@@ -66,12 +65,17 @@ export const uploadNota = async (file: File) => {
   return res.data;
 };
 
-export const getNotas = async () => {
-  const res = await api.get('/notas');
+export const getNotas = async (page = 1, limit = 10) => {
+  const res = await api.get('/notas', {
+    params: {
+      page,
+      limit,
+    },
+  });
+
   return res.data;
 };
 
-// ✅ Adicionado: função logout
 export const logout = () => {
   Cookies.remove('authToken');
   localStorage.removeItem('user');
