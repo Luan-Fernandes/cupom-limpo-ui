@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { Rotas } from './types/TypesResponse';
 
-const protectedRoutes = ['/dashboard', '/perfil', '/notas'];
-const transientRoutes = ['/cadcompleto', '/completecad'];
+const protectedRoutes = [Rotas.minhasNotas, Rotas.ondeComprei];
+const transientRoutes = [Rotas.cadcompleto, Rotas.completecad, Rotas.loginPass];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('authToken')?.value;
@@ -14,13 +15,13 @@ export function middleware(request: NextRequest) {
   );
 
   if (isProtected && !token) {
-    const loginUrl = new URL('/', request.url);
+    const loginUrl = new URL(Rotas.home, request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage = pathname === Rotas.login || pathname === Rotas.cadastrar;
   if (token && isAuthPage) {
-    const dashboardUrl = new URL('/', request.url);
+    const dashboardUrl = new URL(Rotas.home, request.url);
     return NextResponse.redirect(dashboardUrl);
   }
 
@@ -30,14 +31,14 @@ export function middleware(request: NextRequest) {
 
   if (isTransient) {
     if (!justRegistered) {
-      const dashboardUrl = new URL('/', request.url);
+      const dashboardUrl = new URL(Rotas.home, request.url);
       return NextResponse.redirect(dashboardUrl);
     }
 
     const response = NextResponse.next();
     response.cookies.set('justRegistered', '', {
       maxAge: 0,
-      path: '/', 
+      path: Rotas.home, 
       sameSite: 'lax' 
     });
     return response;
@@ -48,12 +49,13 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/perfil/:path*',
-    '/notas/:path*',
-    '/cadcompleto/:path*',
-    '/completecad/:path*',
-    '/login',
-    '/register',
+    `/${Rotas.home}/:path*`,
+    `/${Rotas.minhasNotas}/:path*`,
+    `/${Rotas.ondeComprei}/:path*`,
+    `/${Rotas.cadastrar}/:path*`,
+    `/${Rotas.login}/:path*`,
+    `/${Rotas.cadcompleto}/:path*`,
+    `/${Rotas.completecad}/:path*`,
+    `/${Rotas.loginPass}/:path*`,
   ],
 };

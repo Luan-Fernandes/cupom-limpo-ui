@@ -1,4 +1,4 @@
-export interface CheckCpfResponseType{
+export interface CheckCpfResponseType {
   message: string;
   completeCadastro: boolean;
 }
@@ -14,5 +14,7 @@ export enum Rotas {
   login = "/login",
   cadcompleto = "/cadcompleto",
   home = "/",
-  cadastrar = "/cadastrar"
+  cadastrar = "/cadastrar",
+  minhasNotas = "/minhas-notas",
+  ondeComprei = "/onde-comprei"
 }
