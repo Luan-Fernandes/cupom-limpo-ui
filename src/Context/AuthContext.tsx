@@ -82,6 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token,
         loading,
         login,
+        getNotasAgrupadas: AuthService.getNotasAgrupadas,
         logout,
         checkCpf: AuthService.checkCpf,
         completeRegister: AuthService.completeRegister,

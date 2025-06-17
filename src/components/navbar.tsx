@@ -101,7 +101,7 @@ export default function NavBar({ children }: NavBarProps) {
             </Link>
 
             <Link
-              href={Rotas.ondeComprei}
+              href={Rotas.estabelecimentos}
               className={`flex items-center px-3 py-2 rounded-md text-green-200 hover:bg-green-700 hover:text-white cursor-pointer transition-all duration-300 ease-in-out ${
                 isSidebarMinimized ? "justify-center" : "space-x-3"
               }`}
@@ -113,7 +113,7 @@ export default function NavBar({ children }: NavBarProps) {
                   isSidebarMinimized ? "w-0 opacity-0" : "w-auto opacity-100"
                 }`}
               >
-                Lugares Onde Fui
+               Estabelecimento
               </span>
             </Link>
 

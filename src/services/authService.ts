@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { AuthResponseType, CheckCpfResponseType } from '@/types/TypesResponse';
+import { ApiResponse, AuthResponseType, CheckCpfResponseType } from '@/types/TypesResponse';
 import api from './api';
 import { CadastroRequestType, CompleteLoginRequestType } from '@/types/TypeRequest';
 
@@ -73,6 +73,18 @@ export const getNotas = async (page = 1, limit = 10) => {
     },
   });
 
+  return res.data;
+};
+
+export const getNotasAgrupadas = async (page: number, limit: number): Promise<ApiResponse> => {
+  const res = await api.get('/notas/agrupadas', {
+    params: {
+      page,
+      limit,
+      sortBy: 'dateEmissao',
+      order: 'desc',
+    },
+  });
   return res.data;
 };
 

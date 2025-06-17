@@ -91,15 +91,25 @@ export default function LoginPage() {
           >
             Entrar
           </button>
-          <div className="text-center mt-6">
+          <div className="text-center flex flex-col mt-6">
             <span className="text-sm text-gray-700">
               Não possui conta?
               <Link
-                href={"/cadastrar"}
+                href={Rotas.cadastrar}
                 className="text-green-600 hover:underline font-semibold"
               >
                 {" "}
                 Crie sua conta aqui
+              </Link>
+            </span>
+            <span className="text-sm text-gray-700">
+              Esqueceu sua senha?
+              <Link
+                href={Rotas.redefinirSenha}
+                className="text-green-600 hover:underline font-semibold"
+              >
+                {" "}
+                Recupe aqui
               </Link>
             </span>
           </div>

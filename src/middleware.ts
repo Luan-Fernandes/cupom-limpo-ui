@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { Rotas } from './types/TypesResponse';
 
-const protectedRoutes = [Rotas.minhasNotas, Rotas.ondeComprei];
+const protectedRoutes = [Rotas.minhasNotas, Rotas.estabelecimentos];
 const transientRoutes = [Rotas.cadcompleto, Rotas.completecad, Rotas.loginPass];
 
 export function middleware(request: NextRequest) {
@@ -51,7 +51,8 @@ export const config = {
   matcher: [
     `/${Rotas.home}/:path*`,
     `/${Rotas.minhasNotas}/:path*`,
-    `/${Rotas.ondeComprei}/:path*`,
+    `/${Rotas.redefinirSenha}/:path*`,
+    `/${Rotas.estabelecimentos}/:path*`,
     `/${Rotas.cadastrar}/:path*`,
     `/${Rotas.login}/:path*`,
     `/${Rotas.cadcompleto}/:path*`,
