@@ -10,6 +10,10 @@ import LoadingSpinner from "@/components/loading";
 import FlashMessage from "@/components/flashMessage";
 import { useRouter } from "next/navigation";
 import { Rotas } from "@/types/TypesResponse";
+import { motion } from "framer-motion";
+import type { Transition } from "framer-motion";
+
+
 import Cookies from 'js-cookie';
 
 const emailSchema = z.string().email();
@@ -27,6 +31,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [cpf, setCpf] = useState("");
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
+    const imagemFundo = "/imagemFundo.png";
+
     const router = useRouter();
   function formatCPF(value: string) {
     return value
@@ -129,56 +135,110 @@ export default function LoginPage() {
   ) => {
     setConfirmPassword(e.target.value);
   }
-  return (
-    <div className="bg-gradient-to-r from-green-400 to-teal-500 min-h-screen flex items-center justify-center">
-      <FlashMessage message={error} open={!!error} onClose={() => setError('')} />
-      {loadingPage || loading && <LoadingSpinner />}
-      <div className="bg-gradient-to-b from-white to-zinc-200 lg:w-[500px] w-[370px] lg:h-[700px] h-[635px] rounded-3xl shadow-xl p-10 flex justify-center items-center relative">
-        <Link href={"/login"}>
-          <ArrowLeft className="cursor-pointer absolute w-10 h-10 top-4 left-4 z-50 p-2 text-2xl text-gray-900 hover:text-black" />
-        </Link>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-1 items-center justify-center"
+  const transition: Transition = {
+    type: "spring",
+    ease: "easeOut",
+    stiffness: 30,
+    damping: 12,
+  };
+
+return (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={transition}
+    className="bg-gradient-to-r from-green-400 to-teal-500 min-h-screen flex items-center justify-center"
+    style={{
+      backgroundImage: `url(${imagemFundo})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+  
+    <FlashMessage message={error} open={!!error} onClose={() => setError('')} />
+    {loadingPage || loading && <LoadingSpinner />}
+
+    <motion.div
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={transition}
+      className="bg-gradient-to-b from-white to-zinc-200 lg:w-[500px] w-[370px] lg:h-[700px] h-[635px] rounded-3xl shadow-xl p-10 flex justify-center items-center relative"
+    >
+      <Link href={"/login"}>
+        <ArrowLeft className="cursor-pointer absolute w-10 h-10 top-4 left-4 z-50 p-2 text-2xl text-gray-900 hover:text-black" />
+      </Link>
+
+      <motion.form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-1 items-center justify-center"
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ ...transition, delay: 0.1 }}
+      >
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ ...transition, delay: 0.2 }}
+          className="text-4xl font-bold text-center text-gray-800 mb-6"
         >
-          <div className="flex items-center gap-2">
-            <div className="text-4xl font-bold text-center text-gray-800 mb-6 pt-2">
-             Cadastrar-se
-            </div>
-          </div>
+          Cadastre-se
+        </motion.div>
 
-          <div className="text-sm text-center text-gray-500 mb-8">
-            Insira seus dados para finalizar o cadastro
-          </div>
+        <motion.div
+          className="text-sm text-center text-gray-500 mb-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ ...transition, delay: 0.3 }}
+        >
+          Insira seus dados para finalizar o cadastro
+        </motion.div>
 
-          <div className="w-full flex flex-col gap-2 mb-6">
-            <Input
-              label="Email"
-              type="email"
-              value={email}
-              onValueChange={handleChange}
-            />
-            <Input
-              label="Nome"
-              type="text"
-              value={nome}
-              onValueChange={handleNomeChange}
-            />
-            <Input
-              label="CPF"
-              type="text"
-              value={cpf}
-              onValueChange={handleCpfChange}
-            />
-            <Input label="Senha" type="password" onValueChange={handlePasswordChange}/>
-            <Input label="Confime sua senha" type="password" onValueChange={handleConfirmPasswordChange} />
-          </div>
+        <div className="w-full flex flex-col gap-2 mb-6">
+          {[
+            { label: "Email", type: "email", value: email, onChange: handleChange },
+            { label: "Nome", type: "text", value: nome, onChange: handleNomeChange },
+            { label: "CPF", type: "text", value: cpf, onChange: handleCpfChange },
+          ].map((input, idx) => (
+            <motion.div
+              key={input.label}
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ ...transition, delay: 0.4 + idx * 0.1 }}
+            >
+              <Input
+                label={input.label}
+                type={input.type}
+                value={input.value}
+                onValueChange={input.onChange}
+              />
+            </motion.div>
+          ))}
 
-          <button className="w-[300px] py-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-lg rounded-2xl shadow-2xl hover:from-green-500 hover:to-green-700 transition duration-300 transform hover:scale-105">
-            Cadastrar
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+          {[
+            { label: "Senha", type: "password", onChange: handlePasswordChange },
+            { label: "Confime sua senha", type: "password", onChange: handleConfirmPasswordChange },
+          ].map((input, idx) => (
+            <motion.div
+              key={input.label}
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ ...transition, delay: 0.7 + idx * 0.1 }}
+            >
+              <Input label={input.label} type={input.type} onValueChange={input.onChange} />
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-[300px] py-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-lg rounded-2xl shadow-2xl hover:from-green-500 hover:to-green-700 transition duration-300"
+        >
+          Cadastrar
+        </motion.button>
+      </motion.form>
+    </motion.div>
+  </motion.div>
+);
+
 }

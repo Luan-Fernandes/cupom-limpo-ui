@@ -1,0 +1,64 @@
+.custom-header .ag-header {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.custom-header .ag-header-cell {
+  background-color: rgba(16, 185, 129, 0.15) !important; 
+}
+
+.custom-header .ag-header-cell-text {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.custom-header {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.custom-header .ag-root-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.custom-header .ag-paging-panel {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #2c3e50;
+  padding: 8px;
+}
+
+.custom-header .ag-paging-button {
+  color: #2c3e50;
+}
+
+.custom-header .ag-paging-description {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Regras adicionais para melhor comportamento responsivo */
+.custom-header .ag-center-cols-container,
+.custom-header .ag-header-container {
+  min-width: 100%;
+  width: auto !important;
+}
+
+.custom-header .ag-body-horizontal-scroll {
+  min-height: 10px;
+}
+
+/* Melhorias para dispositivos móveis */
+@media screen and (max-width: 768px) {
+  .custom-header {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .custom-header .ag-paging-panel {
+    font-size: 0.8rem;
+  }
+} 
