@@ -1,7 +1,6 @@
-'use client'; // Adicione esta linha se você estiver usando o Next.js App Router
-
+'use client'; 
 import { useState } from 'react';
-import { Rotas } from "@/types/TypesResponse"; // Assumindo que Rotas está corretamente definido
+import { Rotas } from "@/types/TypesResponse"; 
 import { Leaf, Lock } from "lucide-react";
 import Link from "next/link";
 import { Modal } from '@/components/modal';
@@ -12,7 +11,7 @@ export default function Home() {
   const [modalContent, setModalContent] = useState({
     title: '',
     description: '',
-    icon: null as React.ReactNode | null, // Inicialize com null
+    icon: null as React.ReactNode | null, 
   });
 
   const openModal = (title: string, description: string, icon: React.ReactNode) => {

@@ -23,7 +23,7 @@ import { useAuth } from "@/Context/useAuth";
 export interface NotaFiscal {
   id: string;
   xml: string;
-  dateEmissao: string; // Agora explicitamente YYYY-MM-DD
+  dateEmissao: string;
   value: number;
   noteNumber: string;
   corporateReason: string;
