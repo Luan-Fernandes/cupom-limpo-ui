@@ -2,11 +2,13 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AuthContext } from './useAuth';
-import * as AuthService from '@/services/authService';
+
 import Cookies from 'js-cookie';
-import { userDate } from '@/types/dataUser';
+
+import * as AuthService from '@/services/authService'; 
+import { AuthContext } from './useAuth'; 
 import { jwtDecode } from 'jwt-decode';
+import { userDate } from '@/types/dataUser';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<userDate | null>(null);
@@ -15,9 +17,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const loadAuthData = async () => {
+    const loadUserFromCookies = async () => {
       const cookieToken = Cookies.get('authToken');
-      const storedUser = localStorage.getItem('user');
 
       if (cookieToken) {
         setToken(cookieToken);
@@ -25,22 +26,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const decodedUser = jwtDecode<userDate>(cookieToken);
           setUser(decodedUser);
         } catch (error) {
-          console.error('Erro ao decodificar token do cookie:', error);
+          console.error('Erro ao decodificar token:', error);
+          setUser(null);
           Cookies.remove('authToken');
         }
-      } else if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (err) {
-          console.error('Erro ao parsear user do localStorage:', err);
-          localStorage.removeItem('user');
-        }
       }
-
       setLoading(false);
     };
 
-    loadAuthData();
+    loadUserFromCookies();
   }, []);
 
   useEffect(() => {
@@ -57,8 +51,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const res: any = await AuthService.login(cpf, password);
       setToken(res.token);
       Cookies.set('authToken', res.token, { expires: 7 });
-      setUser(res.user);
-      console.log(token, user);
+      try {
+        const decodedUser = jwtDecode<userDate>(res.token);
+        setUser(decodedUser);
+      } catch (error) {
+        console.error('Erro ao decodificar token no login:', error);
+        setUser(null);
+      }
       return res;
     } finally {
       setLoading(false);
@@ -82,8 +81,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         token,
         loading,
-        getNotasAgrupadas: AuthService.getNotasAgrupadas,
         login,
+        getNotasAgrupadas: AuthService.getNotasAgrupadas,
         logout,
         checkCpf: AuthService.checkCpf,
         completeRegister: AuthService.completeRegister,
@@ -96,6 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         preRegisterCpf: AuthService.preRegisterCpf,
         uploadNota: AuthService.uploadNota,
         getNotas: AuthService.getNotas,
+        findMyNotes: AuthService.findMyNotes,
       }}
     >
       {children}

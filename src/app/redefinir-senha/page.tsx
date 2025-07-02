@@ -119,7 +119,7 @@ export default function LoginPage() {
                   className="w-[300px] py-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-lg rounded-2xl shadow-md hover:bg-green-600 transition duration-300"
                   disabled={loadingPage || loading}
                 >
-                  {loadingPage || loading ? <LoadingSpinner /> : "Enviar"}
+                  enviar
                 </motion.button>
               </motion.div>
             )}

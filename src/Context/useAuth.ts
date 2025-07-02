@@ -1,5 +1,3 @@
-'use client'
-
 import {
   CadastroRequestType,
   CompleteLoginRequestType,
@@ -8,10 +6,10 @@ import {
   ApiResponse,
   AuthResponseType,
   CheckCpfResponseType,
+  NotaFiscal,
 } from "@/types/TypesResponse";
 import { userDate } from "@/types/dataUser";
 import { createContext, useContext } from "react";
-
 interface AuthContextType {
   user: userDate | null;
   token: string | null;
@@ -32,6 +30,16 @@ interface AuthContextType {
   preRegisterCpf: (cpf: string) => Promise<any>;
   uploadNota: (file: File) => Promise<any>;
   getNotas: () => Promise<any>;
+  findMyNotes: (
+    page?: number,
+    limit?: number
+  ) => Promise<{
+    data: NotaFiscal[];
+    total: number;
+    page: number;
+    lastPage: number;
+    totalValue: number;
+  }>;
 }
 
 export const AuthContext = createContext({} as AuthContextType);
